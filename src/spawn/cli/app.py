@@ -46,6 +46,19 @@ def doctor():
     run_health_check()
 
 
+@app.command()
+def deploy_init(
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Preview files without creating them",
+    ),
+):
+    """Initialize deployment configuration for existing project."""
+    from spawn.utils.deploy import run_deploy_init
+    run_deploy_init(dry_run=dry_run)
+
+
 def main():
     app()
 
