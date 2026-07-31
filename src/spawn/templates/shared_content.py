@@ -23,7 +23,6 @@ build/
 
 # uv
 .uv/
-uv.lock
 
 # Environment variables
 .env
@@ -45,4 +44,17 @@ htmlcov/
 
 # Mypy
 .mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Spawn metadata
+.spawn/
+
+# Logs
+logs/*.log
+
+# ChromaDB vector store (regenerate with: delete chroma_db/ and re-run)
+chroma_db/
+!chroma_db/.gitkeep
 """

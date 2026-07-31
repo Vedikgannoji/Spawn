@@ -27,7 +27,35 @@ def initialize_uv(project_path: Path) -> None:
             "UV is not installed or not available in PATH."
         )
 
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as exc:
         raise SpawnError(
-            "Failed to initialize UV environment."
+            exc.stderr.strip() or "Failed to initialize UV environment."
+        ) from exc
+
+
+def install_packages(
+    project_path: Path, packages: list[str], dev: bool = False
+) -> None:
+    if not packages:
+        return
+
+    cmd = ["uv", "add"] + (["--dev"] if dev else []) + packages
+
+    try:
+        subprocess.run(
+            cmd,
+            cwd=project_path,
+            check=True,
+            capture_output=True,
+            text=True,
         )
+
+    except FileNotFoundError:
+        raise SpawnError(
+            "UV is not installed or not available in PATH."
+        )
+
+    except subprocess.CalledProcessError as exc:
+        raise SpawnError(
+            exc.stderr.strip() or "Failed to install packages."
+        ) from exc
