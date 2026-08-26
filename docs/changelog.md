@@ -3,6 +3,103 @@
 All notable changes to Spawn are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## v1.0.7 — 2026
+
+### Fixed
+
+- **UTF-8 console output crash on Windows** — `spawn create` and `spawn doctor` no
+  longer raise `UnicodeEncodeError` when stdout is redirected or piped (e.g.
+  `spawn create ... > out.txt`). stdout/stderr are now reconfigured to UTF-8 with
+  `errors="replace"` at startup, so glyphs like ✨ and 🏥 degrade to `?` instead
+  of crashing the process.
+- **Windows reserved device name validation** — project names matching Windows
+  reserved device names (`CON`, `PRN`, `AUX`, `NUL`, `COM1`–`COM9`, `LPT1`–`LPT9`,
+  case-insensitive) are now rejected upfront by `validate_project_name()` with a
+  clear `SpawnError`. Previously `PRN` raised a raw `NotADirectoryError` traceback.
+
+### Documentation
+
+- Clarified that `pip install spawnio` fails silently with "no matching distribution"
+  on Python < 3.12, and that `uv python install 3.12` resolves it in seconds.
+
+## v1.0.6 — 2026
+
+### Fixed
+
+- **`spawn create` no longer shows the banner** — running `spawn create` directly
+  now skips straight to the project name prompt. The banner is shown only by the
+  bare `spawn` command (no subcommand), keeping it as a "home screen" rather than
+  repeating it on every creation run.
+
+### Internal
+
+- PyPI package renamed to `spawnio`; `importlib.metadata` lookup updated from
+  `version("spawn")` to `version("spawnio")`
+
+## v1.0.5 — 2026
+
+### Added
+
+- **Arrow-key selection menus** — every prompt in `spawn create` (template,
+  framework, provider, CLI type, project type, extras, and Custom
+  Structure's optional setup) now uses arrow-key/spacebar selection
+  instead of typed numbers, powered by `questionary`.
+- **`spawn` with no arguments** now shows the banner, current version, and
+  a list of available commands, instead of Click's default usage error.
+
+### Fixed
+
+- **Consistent, clean cancellation** — pressing Ctrl+C at any point in
+  `spawn create` (prompts, arrow-key menus, or mid-generation) now shows
+  a single `Cancelled.` message and exits with code `130`, instead of a
+  raw Python traceback or inconsistent messages depending on where the
+  interrupt happened.
+
+## v1.0.4 — 2026
+
+### Added
+
+- **AGENTS.md generation** — every generated project now ships an
+  `AGENTS.md` file alongside its README, orienting coding agents on
+  project structure, setup, and conventions. Uses a shared generic
+  default for Automation, CLI, and Data Project, with template-specific
+  content for Backend API (framework + run command), Chatbot/Agent
+  (provider + required environment variable), RAG (required API key +
+  ingestion behavior), and MCP Server (how to add tools/resources).
+  Custom Structure generates it only when the user's pasted layout
+  includes an `AGENTS.md` path, matching how README.md and .gitignore
+  already work in that flow.
+- **`--claude-md` / `--no-claude-md`** flag, interactive prompt, and
+  `"claude_md"` config-file key — opt-in generation of an identical
+  `CLAUDE.md` alongside `AGENTS.md`. Off by default.
+- **`spawn doctor`** now checks for `AGENTS.md` as a Recommended-tier
+  Documentation item.
+
+## v1.0.3 — 2026
+
+### Added
+
+- **MCP Server intent** — `spawn create` can now scaffold a Model
+  Context Protocol server using the official `mcp` Python SDK
+  (`FastMCP`), with one working example tool and one example
+  resource over `stdio` transport, plus a README explaining how to
+  connect it to Claude Desktop or another MCP client.
+
+## v1.0.2 — 2026
+
+### Added
+
+- **Non-interactive mode** — `spawn create` now accepts `--name`, `--template`,
+  `--framework`, `--provider`, `--cli-type`, `--data-type`, `--extras`,
+  `--git`/`--no-git`, and `--uv`/`--no-uv` flags, or a `--config <file.json>`
+  JSON config file, to scaffold a project with zero prompts. Covers all 7
+  registry templates (Custom Structure is not yet supported non-interactively).
+- **`--dry-run`** — validates a non-interactive config and prints it without
+  creating anything.
+- **`--yes` / `-y`** — skips the GitHub-publish prompt. Non-interactive mode
+  also always skips this prompt automatically, so agent-driven invocations
+  never hang waiting for stdin.
+
 ## v1.0.1 — 2026
 
 ### Added

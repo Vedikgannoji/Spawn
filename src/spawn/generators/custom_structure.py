@@ -28,8 +28,8 @@ _MARKDOWN_LINE_RE = re.compile(r"^(\s*)[-*]\s+")
 
 @dataclass
 class ParsedEntry:
-    path: str       # relative path, forward-slash separated
-    is_file: bool   # True if entry has a file extension or no trailing "/"
+    path: str  # relative path, forward-slash separated
+    is_file: bool  # True if entry has a file extension or no trailing "/"
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────
@@ -126,7 +126,7 @@ def _markdown_depth_and_name(line: str, indent_unit: int) -> tuple[int, str] | N
             return None
         return (0, _strip_name(stripped))
     spaces = len(match.group(1))
-    name = _strip_name(line[match.end():].strip())
+    name = _strip_name(line[match.end() :].strip())
     if not name:
         return None
     depth = (spaces // indent_unit + 1) if indent_unit > 0 else 1
@@ -247,7 +247,7 @@ def _build_entries(
                 f"previous depth was {prev_depth} — missing intermediate parent."
             )
 
-        del stack[depth + 1:]
+        del stack[depth + 1 :]
 
         parent = stack[depth] if depth < len(stack) else stack[-1]
         full_path = f"{parent}/{name}".lstrip("/") if parent else name
@@ -283,19 +283,11 @@ def _build_gitignore_content(extra_patterns: list[str]) -> str:
     """Return .gitignore content: Python defaults + deduplicated extra patterns."""
     from spawn.templates.shared_content import GITIGNORE_CONTENT
 
-    existing_lines = {
-        ln.strip() for ln in GITIGNORE_CONTENT.splitlines() if ln.strip()
-    }
+    existing_lines = {ln.strip() for ln in GITIGNORE_CONTENT.splitlines() if ln.strip()}
     new_lines = [p for p in extra_patterns if p not in existing_lines]
     if not new_lines:
         return GITIGNORE_CONTENT
-    return (
-        GITIGNORE_CONTENT.rstrip()
-        + "\n\n# Custom\n"
-        + "\n".join(new_lines)
-        + "\n"
-    )
-
+    return GITIGNORE_CONTENT.rstrip() + "\n\n# Custom\n" + "\n".join(new_lines) + "\n"
 
 
 def _render_tree(entries: list[ParsedEntry]) -> str:
@@ -332,6 +324,21 @@ def _build_readme_content(
     )
 
 
+def _build_agents_md_content(project_name: str, entries: list[ParsedEntry]) -> str:
+    """Return generated AGENTS.md content for a custom-structure project."""
+    tree_lines = _render_tree(entries)
+    return (
+        f"# Agent Context: {project_name}\n\n"
+        "This file orients coding agents working in this repository.\n\n"
+        "## Project Structure\n\n"
+        "```\n"
+        f"{tree_lines}\n"
+        "```\n\n"
+        "## Setup\n\n"
+        "See README.md for setup instructions.\n"
+    )
+
+
 # ─── Filesystem generator ─────────────────────────────────────────────────
 
 
@@ -345,6 +352,7 @@ class CustomStructureGenerator:
         dependencies: list[str] | None = None,
         dev_setup: list[str] | None = None,
         gitignore_extra: list[str] | None = None,
+        generate_claude_md: bool = False,
     ) -> Path:
         """
         Create the folder/file structure described by *entries* under a new
@@ -375,7 +383,8 @@ class CustomStructureGenerator:
 
             readme_entry = next(
                 (
-                    e for e in entries
+                    e
+                    for e in entries
                     if e.path == "README.md" or e.path.endswith("/README.md")
                 ),
                 None,
@@ -387,9 +396,34 @@ class CustomStructureGenerator:
                     encoding="utf-8",
                 )
 
+            agents_md_entry = next(
+                (
+                    e
+                    for e in entries
+                    if e.path == "AGENTS.md" or e.path.endswith("/AGENTS.md")
+                ),
+                None,
+            )
+            if agents_md_entry is not None:
+                agents_md_path = project_path / agents_md_entry.path
+                agents_md_path.write_text(
+                    _build_agents_md_content(project_name, entries),
+                    encoding="utf-8",
+                )
+
+            if generate_claude_md and agents_md_entry is not None:
+                claude_md_path = project_path / agents_md_entry.path.replace(
+                    "AGENTS.md", "CLAUDE.md"
+                )
+                claude_md_path.write_text(
+                    _build_agents_md_content(project_name, entries),
+                    encoding="utf-8",
+                )
+
             gitignore_entry = next(
                 (
-                    e for e in entries
+                    e
+                    for e in entries
                     if e.path == ".gitignore" or e.path.endswith("/.gitignore")
                 ),
                 None,

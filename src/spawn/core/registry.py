@@ -9,6 +9,7 @@ from spawn.templates.chatbot import ChatbotTemplate
 from spawn.templates.agent import AgentTemplate
 from spawn.templates.rag import RAGTemplate
 from spawn.templates.data_project import DataProjectTemplate
+from spawn.templates.mcp_server import MCPServerTemplate
 from spawn.templates.base import BaseTemplate
 
 
@@ -61,7 +62,14 @@ TEMPLATES: dict[str, TemplateMetadata] = {
         description="Conversational AI with PydanticAI, OpenAI SDK, or LiteLLM",
         template_class=ChatbotTemplate,
         available_frameworks=["pydantic-ai", "openai-sdk", "litellm"],
-        available_providers=["openai", "anthropic", "gemini", "openrouter", "ollama", "groq"],
+        available_providers=[
+            "openai",
+            "anthropic",
+            "gemini",
+            "openrouter",
+            "ollama",
+            "groq",
+        ],
         available_extras=["ruff", "pytest", "rich", "github-actions"],
     ),
     "agent": TemplateMetadata(
@@ -70,7 +78,14 @@ TEMPLATES: dict[str, TemplateMetadata] = {
         description="Tool-calling agent with PydanticAI or OpenAI Agents SDK",
         template_class=AgentTemplate,
         available_frameworks=["pydantic-ai", "openai-agents"],
-        available_providers=["openai", "anthropic", "gemini", "openrouter", "ollama", "groq"],
+        available_providers=[
+            "openai",
+            "anthropic",
+            "gemini",
+            "openrouter",
+            "ollama",
+            "groq",
+        ],
         available_extras=["ruff", "pytest", "github-actions"],
     ),
     "rag": TemplateMetadata(
@@ -86,7 +101,19 @@ TEMPLATES: dict[str, TemplateMetadata] = {
         description="Data Analysis, Dashboard, ETL Pipeline, or Machine Learning project",
         template_class=DataProjectTemplate,
         available_extras=["ruff", "pytest", "github-actions"],
-        available_data_types=["Data Analysis", "Dashboard", "ETL Pipeline", "Machine Learning"],
+        available_data_types=[
+            "Data Analysis",
+            "Dashboard",
+            "ETL Pipeline",
+            "Machine Learning",
+        ],
+    ),
+    "mcp": TemplateMetadata(
+        slug="mcp",
+        display_name="MCP Server",
+        description="Model Context Protocol server with the official Python SDK",
+        template_class=MCPServerTemplate,
+        available_extras=["ruff", "pytest", "github-actions"],
     ),
 }
 

@@ -273,12 +273,12 @@ OPENAI_AGENTS_DISABLE_TRACING=1
 
 def make_readme(framework: str, provider: str) -> str:
     provider_key_map = {
-        "openai":      "OPENAI_API_KEY=your-key",
-        "anthropic":   "ANTHROPIC_API_KEY=your-key",
-        "gemini":      "GOOGLE_API_KEY=your-key",
-        "openrouter":  "OPENROUTER_API_KEY=your-key",
-        "ollama":      "OLLAMA_BASE_URL=http://localhost:11434",
-        "groq":        "GROQ_API_KEY=your-key",
+        "openai": "OPENAI_API_KEY=your-key",
+        "anthropic": "ANTHROPIC_API_KEY=your-key",
+        "gemini": "GOOGLE_API_KEY=your-key",
+        "openrouter": "OPENROUTER_API_KEY=your-key",
+        "ollama": "OLLAMA_BASE_URL=http://localhost:11434",
+        "groq": "GROQ_API_KEY=your-key",
     }
     key_line = provider_key_map.get(provider, "API_KEY=your-key")
     return (
@@ -317,6 +317,28 @@ def make_readme(framework: str, provider: str) -> str:
         "uv run pytest\n"
         "```\n"
     )
+
+
+def make_agents_md(framework: str, provider: str) -> str:
+    if framework == "openai-agents" and provider == "openrouter":
+        key_name = "OPENAI_API_KEY` and `OPENAI_BASE_URL"
+    else:
+        provider_key_map = {
+            "openai": "OPENAI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "gemini": "GOOGLE_API_KEY",
+            "openrouter": "OPENROUTER_API_KEY",
+            "ollama": "OLLAMA_BASE_URL",
+            "groq": "GROQ_API_KEY",
+        }
+        key_name = provider_key_map.get(provider, "OPENAI_API_KEY")
+    return (
+        "# {project_name}\n\n"
+        f"AI agent using {framework.title()} with {provider.title()} provider.\n\n"
+        "## Required Environment Variable\n\n"
+        f"Set `{key_name}` in your `.env` file.\n"
+    )
+
 
 # ─── GitHub Actions ───────────────────────────────────────────────────────
 

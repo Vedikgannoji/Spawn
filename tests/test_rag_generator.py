@@ -22,9 +22,11 @@ def _cfg(
 
 @contextmanager
 def _mock_uv_and_install():
-    with patch("spawn.generators.project_generator.install_packages"), \
-         patch("spawn.generators.project_generator.initialize_uv"), \
-         patch.object(RAGTemplate, "post_install"):
+    with (
+        patch("spawn.generators.project_generator.install_packages"),
+        patch("spawn.generators.project_generator.initialize_uv"),
+        patch.object(RAGTemplate, "post_install"),
+    ):
         yield
 
 
@@ -183,9 +185,11 @@ def test_rag_meta_json(tmp_path, monkeypatch):
 
 def test_rag_install_packages_called_with_correct_deps(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    with patch("spawn.generators.project_generator.install_packages") as mock_install, \
-         patch("spawn.generators.project_generator.initialize_uv"), \
-         patch.object(RAGTemplate, "post_install"):
+    with (
+        patch("spawn.generators.project_generator.install_packages") as mock_install,
+        patch("spawn.generators.project_generator.initialize_uv"),
+        patch.object(RAGTemplate, "post_install"),
+    ):
         ProjectGenerator().generate(_cfg())
     args = mock_install.call_args[0][1]
     assert "llama-index-core" in args
@@ -197,16 +201,37 @@ def test_rag_install_packages_called_with_correct_deps(tmp_path, monkeypatch):
 def test_rag_gitignore_has_chroma_wildcard_rule(tmp_path, monkeypatch):
     """post_install must append chroma_db/* and !chroma_db/.gitkeep to .gitignore."""
     monkeypatch.chdir(tmp_path)
-    with patch("spawn.generators.project_generator.install_packages"), \
-         patch("spawn.generators.project_generator.initialize_uv") as mock_uv:
+    with (
+        patch("spawn.generators.project_generator.install_packages"),
+        patch("spawn.generators.project_generator.initialize_uv") as mock_uv,
+    ):
         # initialize_uv needs to create a minimal pyproject.toml so post_install
         # can read it without error
         def fake_uv(p):
             (p / "pyproject.toml").write_text(
                 '[project]\nname="x"\nversion="0.1.0"\n', encoding="utf-8"
             )
+
         mock_uv.side_effect = fake_uv
         ProjectGenerator().generate(_cfg())
     gitignore = (tmp_path / "my-rag" / ".gitignore").read_text(encoding="utf-8")
     assert "chroma_db/*" in gitignore
     assert "!chroma_db/.gitkeep" in gitignore
+
+
+# ─── AGENTS.md ───────────────────────────────────────────────────────────
+
+
+def test_rag_creates_agents_md(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with _mock_uv_and_install():
+        ProjectGenerator().generate(_cfg())
+    assert (tmp_path / "my-rag" / "AGENTS.md").is_file()
+
+
+def test_rag_agents_md_contains_project_name(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    with _mock_uv_and_install():
+        ProjectGenerator().generate(_cfg(name="test-rag-x"))
+    content = (tmp_path / "test-rag-x" / "AGENTS.md").read_text(encoding="utf-8")
+    assert "test-rag-x" in content

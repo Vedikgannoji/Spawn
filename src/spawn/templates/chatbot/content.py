@@ -553,14 +553,15 @@ def test_get_response_non_empty():
 
 # ─── README content ───────────────────────────────────────────────────────
 
+
 def make_readme(framework: str, provider: str) -> str:
     provider_key_map = {
-        "openai":      "OPENAI_API_KEY=your-key",
-        "anthropic":   "ANTHROPIC_API_KEY=your-key",
-        "gemini":      "GOOGLE_API_KEY=your-key",
-        "openrouter":  "OPENROUTER_API_KEY=your-key",
-        "ollama":      "OLLAMA_BASE_URL=http://localhost:11434",
-        "groq":        "GROQ_API_KEY=your-key",
+        "openai": "OPENAI_API_KEY=your-key",
+        "anthropic": "ANTHROPIC_API_KEY=your-key",
+        "gemini": "GOOGLE_API_KEY=your-key",
+        "openrouter": "OPENROUTER_API_KEY=your-key",
+        "ollama": "OLLAMA_BASE_URL=http://localhost:11434",
+        "groq": "GROQ_API_KEY=your-key",
     }
     key_line = provider_key_map.get(provider, "API_KEY=your-key")
     return (
@@ -597,20 +598,30 @@ def make_readme(framework: str, provider: str) -> str:
         "## Running Tests\n\n"
         "```bash\n"
         "uv run pytest\n"
-        "```\n\n"
-        "## Roadmap (Not Yet Available)\n\n"
-        "```bash\n"
-        "spawn add rag\n"
-        "spawn add tools\n"
-        "spawn add vector-db\n"
-        "spawn add memory\n"
-        "spawn add mcp\n"
-        "spawn add voice\n"
-        "spawn add web-ui\n"
-        "spawn add streaming\n"
-        "spawn add observability\n"
         "```\n"
     )
+
+
+def make_agents_md(framework: str, provider: str) -> str:
+    if framework == "litellm" and provider == "ollama":
+        key_name = "OLLAMA_API_BASE"
+    else:
+        provider_key_map = {
+            "openai": "OPENAI_API_KEY",
+            "anthropic": "ANTHROPIC_API_KEY",
+            "gemini": "GOOGLE_API_KEY",
+            "openrouter": "OPENROUTER_API_KEY",
+            "ollama": "OLLAMA_BASE_URL",
+            "groq": "GROQ_API_KEY",
+        }
+        key_name = provider_key_map.get(provider, "OPENAI_API_KEY")
+    return (
+        "# {project_name}\n\n"
+        f"AI chatbot using {framework.title()} with {provider.title()} provider.\n\n"
+        "## Required Environment Variable\n\n"
+        f"Set `{key_name}` in your `.env` file.\n"
+    )
+
 
 # ─── GitHub Actions ───────────────────────────────────────────────────────
 

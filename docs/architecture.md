@@ -23,7 +23,7 @@ Entry point: `spawn.cli.app:main` (defined in `pyproject.toml` as `[project.scri
 
 ```
 src/spawn/
-├── __init__.py         # __version__ via importlib.metadata, fallback "0.6.0"
+├── __init__.py         # __version__ via importlib.metadata, fallback "1.0.6"
 ├── cli/
 │   ├── app.py          # Typer app: create, version, doctor commands
 │   └── prompts.py      # Interactive prompts; derives menu from registry
@@ -141,6 +141,10 @@ Each template lives in its own subdirectory with an `__init__.py` (class) and `c
 | `cli` | `CLITemplate` | typer, click, argparse | ruff, pytest, github-actions |
 | `automation` | `AutomationTemplate` | none | ruff, pytest, github-actions |
 | `chatbot` | `ChatbotTemplate` | pydantic-ai, openai-sdk | ruff, pytest, github-actions |
+| `agent` | `AgentTemplate` | pydantic-ai, openai-agents | ruff, pytest, github-actions |
+| `rag` | `RAGTemplate` | none | ruff, pytest, github-actions |
+| `data` | `DataProjectTemplate` | none | ruff, pytest, github-actions |
+| `mcp` | `MCPServerTemplate` | none | ruff, pytest, github-actions |
 
 `get_template(slug)` returns a default-constructed instance. `instantiate_template(config)` forwards `framework`, `extras`, and `cli_type` from `ProjectConfig` to templates whose constructors accept them, using signature introspection.
 

@@ -1,10 +1,12 @@
 <div align="center">
-<img src="assets/preview.png" alt="Spawn — scaffold your next project" width="520" />
+<img src="https://raw.githubusercontent.com/Abhiix0/Spawn/main/assets/preview.png" alt="Spawn — scaffold your next project" width="520" />
 
 > Eliminate repetitive project setup. Go from zero to a fully structured dev environment in seconds.
 
 Spawn is a local CLI tool that transforms one command into a complete Python project foundation — directories, Git, dependencies, and a virtual environment set up automatically, so you can start building immediately.
 
+[![PyPI](https://img.shields.io/pypi/v/spawnio?style=flat-square&color=blue)](https://pypi.org/project/spawnio/)
+[![Downloads](https://img.shields.io/pypi/dm/spawnio?style=flat-square&color=brightgreen)](https://pypi.org/project/spawnio/)
 [![Python](https://img.shields.io/badge/Python-3.12+-blue?style=flat-square)](https://python.org)
 [![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?style=flat-square)](https://github.com/Abhiix0/spawn/actions)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
@@ -29,6 +31,7 @@ Spawn is a local CLI tool that transforms one command into a complete Python pro
   - [5. AI Agent](#5-ai-agent)
   - [6. RAG System](#6-rag-system)
   - [7. Data Project](#7-data-project)
+  - [8. MCP Server](#8-mcp-server)
 - [Bring Your Own Structure](#bring-your-own-structure)
 - [Other Commands](#other-commands)
   - [spawn doctor](#spawn-doctor)
@@ -64,11 +67,14 @@ It's repetitive. It's inconsistent. And you haven't written a single line of *re
 
 | Feature | What it does |
 |---|---|
-| **Intent-based templates** | Backend API (FastAPI / Flask / Django), CLI Application (Typer / Click / Argparse), Automation Tool, AI Chatbot, AI Agent, RAG System, Data Project (Analysis / Dashboard / ETL / Machine Learning) |
+| **Intent-based templates** | Backend API (FastAPI / Flask / Django), CLI Application (Typer / Click / Argparse), Automation Tool, AI Chatbot, AI Agent, RAG System, Data Project (Analysis / Dashboard / ETL / Machine Learning), MCP Server |
 | **Bring your own structure** | Paste any folder layout — Tree, Markdown list, or Indented — and Spawn builds exactly that, no blueprint required |
 | **Extras system** | Opt-in ruff, pytest, Docker, GitHub Actions — installed and wired automatically |
 | **Dependency installation** | `uv add` runs automatically with the right packages for your choices |
 | **Git + uv** | Optionally runs `git init`, `uv init`, and `uv venv` |
+| **Non-interactive mode** | Scaffold with `--name`/`--template`/etc. flags or a `--config` JSON file — zero prompts, safe for scripts and agents |
+| **Agent context files** | Every project ships an `AGENTS.md`; add `--claude-md` for an identical `CLAUDE.md` alongside it |
+| **Arrow-key menus** | Every prompt in `spawn create` is arrow-key/spacebar driven, not typed numbers |
 | **GitHub publishing** | Connects your project to an existing GitHub repo and pushes the initial commit |
 | **spawn doctor** | Scores your project's health out of 100, with per-category breakdowns and a prioritized next step |
 
@@ -77,6 +83,7 @@ It's repetitive. It's inconsistent. And you haven't written a single line of *re
 ## Prerequisites
 
 - **Python 3.12+** — [Download here](https://python.org/downloads)
+  > `pip install spawnio` will silently return "no matching distribution" on Python < 3.12. If you're using uv, run `uv python install 3.12` to get a compatible interpreter in seconds.
 - **uv** — [Install guide](https://github.com/astral-sh/uv)
 - **Git** — [Download here](https://git-scm.com/downloads)
 
@@ -86,6 +93,28 @@ It's repetitive. It's inconsistent. And you haven't written a single line of *re
 
 ## Installation
 
+**Option 1 — Install from PyPI (recommended)**
+
+```bash
+pip install spawnio
+```
+
+or, using `uv`:
+
+```bash
+uv tool install spawnio
+```
+
+or run it without installing:
+
+```bash
+uvx --from spawnio spawn create
+```
+
+You can now run `spawn` from anywhere on your machine.
+
+**Option 2 — Install from source (for contributing)**
+
 ```bash
 git clone https://github.com/Abhiix0/spawn.git
 cd spawn
@@ -93,11 +122,29 @@ uv sync
 uv tool install .
 ```
 
-You can now run `spawn` from anywhere on your machine.
-
 ---
 
 ## Usage
+
+### Quick overview — `spawn` with no arguments
+
+Running `spawn` with no arguments shows the banner, the installed version, and the list of available commands — useful when you just want a reminder of what's available without starting a project flow.
+
+```
+SPAWN — scaffold your next project
+v1.0.6
+
+Commands
+  create    Scaffold a new project
+  doctor    Check the health of a project directory
+  version   Show the installed version
+
+Run spawn COMMAND --help for details on a command.
+```
+
+---
+
+### `spawn create`
 
 ```bash
 spawn create
@@ -115,17 +162,19 @@ Spawn rejects names with spaces or special characters, and tells you immediately
 
 **Step 2 — Pick a template**
 
-```
-  1  Backend API
-  2  CLI Application
-  3  Automation Tool
-  4  AI Chatbot
-  5  AI Agent
-  6  RAG System
-  7  Data Project
-  8  Custom Structure
+Use the arrow keys to move, Enter to select — the same pattern every prompt in Spawn follows.
 
-Choose Template [1-8]: 1
+```
+? Choose a template (Use arrow keys)
+ » Backend API
+   CLI Application
+   Automation Tool
+   AI Chatbot
+   AI Agent
+   RAG System
+   Data Project
+   MCP Server
+   Custom Structure
 ```
 
 **Step 3 — Additional prompts** *(template-dependent — framework, provider, project type, and/or extras, depending on what you picked. See [Project Templates](#project-templates) below for each one's exact flow.)*
@@ -183,19 +232,16 @@ my-api/
 **Prompts:**
 
 ```
-  1  fastapi
-  2  flask
-  3  django
+? Choose a framework (Use arrow keys)
+ » fastapi
+   flask
+   django
 
-Choose Framework [1-3]: 1
-
-  1  ruff
-  2  pytest
-  3  docker
-  4  github-actions
-
-  Enter numbers separated by commas, or press Enter to skip
-Extras []: 1,2
+? Choose extras (space to toggle, enter to confirm)
+ ● ruff
+ ● pytest
+ ○ docker
+ ○ github-actions
 ```
 
 **Available extras:** `ruff` `pytest` `docker` `github-actions`
@@ -236,23 +282,19 @@ my-cli/
 **Prompts:**
 
 ```
-  1  utility
-  2  interactive
+? Choose CLI Type (Use arrow keys)
+ » utility
+   interactive
 
-Choose CLI Type [1-2]: 1
+? Choose a framework (Use arrow keys)
+ » typer
+   click
+   argparse
 
-  1  typer
-  2  click
-  3  argparse
-
-Choose Framework [1-3]: 1
-
-  1  ruff
-  2  pytest
-  3  github-actions
-
-  Enter numbers separated by commas, or press Enter to skip
-Extras []: 1,2
+? Choose extras (space to toggle, enter to confirm)
+ ● ruff
+ ● pytest
+ ○ github-actions
 ```
 
 **Available extras:** `ruff` `pytest` `github-actions`
@@ -288,12 +330,10 @@ my-automation/
 **Prompts:**
 
 ```
-  1  ruff
-  2  pytest
-  3  github-actions
-
-  Enter numbers separated by commas, or press Enter to skip
-Extras []: 1,2
+? Choose extras (space to toggle, enter to confirm)
+ ● ruff
+ ● pytest
+ ○ github-actions
 ```
 
 **Available extras:** `ruff` `pytest` `github-actions`
@@ -328,28 +368,24 @@ my-chatbot/
 **Prompts:**
 
 ```
-  1  pydantic-ai
-  2  openai-sdk
-  3  litellm
+? Choose a framework (Use arrow keys)
+ » pydantic-ai
+   openai-sdk
+   litellm
 
-Choose Framework [1-3]: 1
+? Choose a provider (Use arrow keys)
+ » openai
+   anthropic
+   gemini
+   openrouter
+   ollama
+   groq
 
-  1  openai
-  2  anthropic
-  3  gemini
-  4  openrouter
-  5  ollama
-  6  groq
-
-Choose Provider [1-6]: 1
-
-  1  ruff
-  2  pytest
-  3  rich
-  4  github-actions
-
-  Enter numbers separated by commas, or press Enter to skip
-Extras []: 1,2
+? Choose extras (space to toggle, enter to confirm)
+ ● ruff
+ ● pytest
+ ○ rich
+ ○ github-actions
 ```
 
 **Available extras:** `ruff` `pytest` `rich` `github-actions`
@@ -384,26 +420,22 @@ my-agent/
 **Prompts:**
 
 ```
-  1  pydantic-ai
-  2  openai-agents
+? Choose a framework (Use arrow keys)
+ » pydantic-ai
+   openai-agents
 
-Choose Framework [1-2]: 1
+? Choose a provider (Use arrow keys)
+ » openai
+   anthropic
+   gemini
+   openrouter
+   ollama
+   groq
 
-  1  openai
-  2  anthropic
-  3  gemini
-  4  openrouter
-  5  ollama
-  6  groq
-
-Choose Provider [1-6]: 1
-
-  1  ruff
-  2  pytest
-  3  github-actions
-
-  Enter numbers separated by commas, or press Enter to skip
-Extras []: 1,2
+? Choose extras (space to toggle, enter to confirm)
+ ● ruff
+ ● pytest
+ ○ github-actions
 ```
 
 > If you pick `openai-agents`, only `openai` and `openrouter` appear as provider choices — the list is filtered per framework.
@@ -445,12 +477,10 @@ my-rag/
 **Prompts:**
 
 ```
-  1  ruff
-  2  pytest
-  3  github-actions
-
-  Enter numbers separated by commas, or press Enter to skip
-Extras []: 1,2
+? Choose extras (space to toggle, enter to confirm)
+ ● ruff
+ ● pytest
+ ○ github-actions
 ```
 
 RAG System uses a fixed stack — **LlamaIndex + ChromaDB + OpenAI** — so there's no framework or provider prompt, unlike Chatbot and Agent. On first run, it automatically ingests documents from `data/` into a local ChromaDB index, then lets you ask questions against them. Requires an `OPENAI_API_KEY` (used for both the LLM and embeddings).
@@ -489,19 +519,16 @@ my-data-project/
 **Prompts:**
 
 ```
-  1  Data Analysis
-  2  Dashboard
-  3  ETL Pipeline
-  4  Machine Learning
+? Choose Project Type (Use arrow keys)
+ » Data Analysis
+   Dashboard
+   ETL Pipeline
+   Machine Learning
 
-Choose Project Type [1-4]: 1
-
-  1  ruff
-  2  pytest
-  3  github-actions
-
-  Enter numbers separated by commas, or press Enter to skip
-Extras []: 1,2
+? Choose extras (space to toggle, enter to confirm)
+ ● ruff
+ ● pytest
+ ○ github-actions
 ```
 
 **Available extras:** `ruff` `pytest` `github-actions`
@@ -526,9 +553,49 @@ uv run python src/train.py
 
 ---
 
+### 8. MCP Server
+
+Best for: exposing tools and data to Claude Desktop, Claude Code, or any MCP-compatible client.
+
+```
+my-mcp-server/
+├── src/
+│   ├── server.py   # FastMCP instance, one example tool + resource
+│   └── __init__.py
+├── tests/
+│   └── test_server.py
+├── .env.example
+└── README.md
+```
+
+**Prompts:**
+
+```
+? Choose extras (space to toggle, enter to confirm)
+ ● ruff
+ ● pytest
+ ○ github-actions
+```
+
+MCP Server uses a fixed stack — the official `mcp` Python SDK's `FastMCP` — so there's no framework or provider prompt, the same as RAG System.
+
+**Available extras:** `ruff` `pytest` `github-actions`
+
+**Run it:**
+
+```bash
+cd my-mcp-server
+uv run python -m src.server
+# Waits on stdio for an MCP client to connect
+```
+
+Then add it to your MCP client's config — see the generated project's own README.md for the exact JSON snippet.
+
+---
+
 ## Bring Your Own Structure
 
-None of the seven templates above fit? **Custom Structure** shows up as the last option in the same `spawn create` picker (`8`) — it's not a separate command, just a different path through the same flow.
+None of the eight templates above fit? **Custom Structure** shows up as the last option in the same `spawn create` picker — it's not a separate command, just a different path through the same flow.
 
 Paste any of three text formats — Unix `tree` output, a Markdown list, or plain indented hierarchy — and Spawn parses it, previews the detected folders and files, then creates the structure with the same Git and uv setup as every other template.
 
@@ -558,13 +625,11 @@ Initialize Git? [Y/n]: Y
 Initialize uv? [Y/n]: Y
 Dependencies (comma separated, optional): fastapi, uvicorn
 
-  Optional Setup
-  1  Ruff
-  2  Pytest
-  3  Pre-commit
-  4  Dockerfile
-
-Enter numbers separated by commas, or press Enter to skip: 1,2
+? Optional Setup (space to toggle, enter to confirm)
+ ● Ruff
+ ● Pytest
+ ○ Pre-commit
+ ○ Dockerfile
 
 Additional ignore patterns (optional, comma separated): data/, *.csv
 
@@ -579,6 +644,37 @@ Proceed? [Y/n]: Y
 **The Dependencies prompt** (shown only when uv is enabled) installs packages immediately via `uv add`.
 
 **The Optional Setup menu** installs dev tools via `uv add --dev` and generates their config files: `ruff.toml`, `tests/__init__.py`, `.pre-commit-config.yaml`, and/or `Dockerfile`.
+
+### Non-Interactive Mode
+
+Skip all prompts by passing flags directly or pointing to a JSON config file.
+
+**Using flags:**
+
+```bash
+spawn create --name my-api --template backend-api --framework fastapi --extras ruff,pytest --git
+```
+
+**Using a config file:**
+
+```json
+{
+  "name": "my-api",
+  "template": "backend-api",
+  "framework": "fastapi",
+  "extras": ["ruff", "pytest"],
+  "git": true,
+  "uv": true
+}
+```
+
+```bash
+spawn create --config spawn.json
+```
+
+`--config` takes precedence over individual flags. Add `--dry-run` to either form to validate the config and print it without creating any files.
+
+> Custom Structure is interactive-only in this version.
 
 ---
 
@@ -638,7 +734,7 @@ Checks span six categories — Documentation, Version Control, Configuration, Te
 
 ```bash
 spawn version
-# → Spawn v1.0.1
+# → Spawn v1.0.7
 ```
 
 ### Publish to GitHub
@@ -668,17 +764,33 @@ All tests should pass. If they don't, please [open an issue](https://github.com/
 
 ## Roadmap
 
-**Recently shipped**
+### Shipped
 
-- Custom Structure workflow — paste any folder layout, Spawn creates it (v1.0.0)
-- Doctor 2.0 — per-category health percentages, tiered recommendations, Next Best Step (v1.0.0)
-- Data Project intent — analysis, dashboard, ETL, ML sub-options (v0.9.0)
-- RAG System intent — LlamaIndex + ChromaDB (v0.8.0)
-- AI Agent intent — tool-calling with PydanticAI / OpenAI Agents SDK (v0.7.0)
+| Version | Highlight |
+|---|---|
+| **v1.0.7** | Fixed UTF-8 console crash on Windows when stdout is redirected/piped, added Windows reserved device name validation (`CON`, `PRN`, `AUX`, `NUL`, `COM1`–`9`, `LPT1`–`9`), clarified Python 3.12 requirement |
+| **v1.0.6** | Removed duplicate banner from `spawn create`; `spawn` alone now shows the banner and command overview |
+| **v1.0.5** | Published to PyPI as `spawnio`; arrow-key selection menus, no-args banner, consistent Ctrl+C handling |
+| **v1.0.4** | `AGENTS.md` / `CLAUDE.md` generation for every project, `--claude-md` opt-in |
+| **v1.0.3** | MCP Server intent — official `mcp` SDK, one working tool + resource |
+| **v1.0.2** | Non-interactive mode — `--name`/`--template` flags or `--config` JSON |
+| **v1.0.1** | Custom Structure: dependency install, optional dev tooling setup, smart README/`.gitignore` generation |
+| **v1.0.0** | Custom Structure workflow (paste any folder layout) + Doctor 2.0 (per-category scores, tiered recommendations) |
+| **v0.9.0** | Data Project intent — analysis, dashboard, ETL, ML sub-types |
+| **v0.8.0** | RAG System intent — LlamaIndex + ChromaDB |
+| **v0.7.0** | AI Agent intent — tool-calling with PydanticAI / OpenAI Agents SDK |
+| **v0.6.0** | AI Chatbot intent — 3 frameworks, 6 providers, runtime memory |
+| **v0.5.0** | Automation Tool intent — workflows, logging, working example out of the box |
+| **v0.4.0** | CLI Application intent — Typer/Click/Argparse, Utility/Interactive types |
+| **v0.3.0** | Backend API intent — FastAPI/Flask/Django, extras system, `.spawn/meta.json` |
+| **v0.2.0** | GitHub publishing from the CLI, `spawn doctor` health checker, CI workflow |
+| **v0.1.0** | Initial release — `spawn create`, 4 templates, Git + uv integration |
 
-**What's next**
+---
 
-Nothing formally scheduled yet — Spawn intentionally paused new intents at v1.0 to focus on stability. Ideas under consideration live in [Issues](https://github.com/Abhiix0/spawn/issues); open one if there's something you'd want to see.
+## What's next
+
+Nothing formally scheduled yet. Ideas under consideration live in [Issues](https://github.com/Abhiix0/spawn/issues); open one if there's something you'd want to see.
 
 For the full version history, see [CHANGELOG.md](docs/changelog.md).
 
@@ -723,6 +835,6 @@ This project is open source under the [MIT License](LICENSE).
 
 <div align="center">
 
-**[Star on GitHub](https://github.com/Abhiix0/spawn)** · **[Report a Bug](https://github.com/Abhiix0/spawn/issues)** · **[Request a Feature](https://github.com/Abhiix0/spawn/issues)**
+**[ Star on GitHub](https://github.com/Abhiix0/spawn)**  ·  **[ report a bug](https://github.com/Abhiix0/spawn/issues)**  ·  **[ request a Feature](https://github.com/Abhiix0/spawn/issues)**  ·  **[ PyPI](https://pypi.org/project/spawnio/)**
 
 </div>
